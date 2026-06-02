@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RUTHA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  height:100%;
+  background:#0a0a0a;
+  font-family:'DM Sans',system-ui,sans-serif;
+  color:#fff;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ══════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════ */
+:root{
+  /* Greens */
+  --g50:#f0fbe8;
+  --g100:#d6f5b8;
+  --g200:#b0e87a;
+  --g300:#83d43e;
+  --g400:#5fb82a;
+  --g500:#4a9a1f;
+  --g600:#387c15;
+  --g700:#275f0c;
+  --g800:#1a4207;
+  --g900:#0e2603;
+  /* Surfaces */
+  --bg:#0a0a0a;
+  --s1:#111111;
+  --s2:#181818;
+  --s3:#202020;
+  --s4:#2a2a2a;
+  --s5:#333333;
+  /* Text */
+  --t1:#ffffff;
+  --t2:#a8a8a8;
+  --t3:#5a5a5a;
+  --t4:#3a3a3a;
+  /* Semantic */
+  --amber:#e8a230;
+  --red:#e04444;
+  --blue:#4a9ee8;
+  /* Misc */
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;--rpill:999px;
+}
+
+/* ══════════════════════════════════════
+   APP SHELL — mobile frame
+══════════════════════════════════════ */
+.shell{
+  width:390px;
+  height:844px;
+  background:var(--s1);
+  border-radius:44px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07),
+    0 60px 120px rgba(0,0,0,.9),
+    inset 0 1px 0 rgba(255,255,255,.06);
+}
+@media(max-height:860px),(max-width:400px){
+  .shell{
+    width:100vw;height:100vh;
+    border-radius:0;
+    box-shadow:none;
+  }
+}
+
+/* ══════════════════════════════════════
+   STATUS BAR
+══════════════════════════════════════ */
+.statusbar{
+  height:50px;
+  padding:16px 28px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+.sb-time{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.sb-icons{display:flex;align-items:center;gap:6px}
+.sb-icons svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ══════════════════════════════════════
+   VIEWS (tabs)
+══════════════════════════════════════ */
+.view{display:none;flex:1;overflow-y:auto;overflow-x:hidden;flex-direction:column}
+.view.active{display:flex}
+.view::-webkit-scrollbar{display:none}
+
+/* ══════════════════════════════════════
+   ╔══════════════╗
+   ║  VIEW: HOME  ║
+   ╚══════════════╝
+══════════════════════════════════════ */
+
+/* — TOP HEADER — */
+.home-header{
+  padding:6px 22px 18px;
+  flex-shrink:0;
+}
+.route-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--g800);
+  border:1px solid var(--g700);
+  padding:6px 12px 6px 8px;
+  border-radius:var(--rpill);
+  margin-bottom:16px;
+}
+.chip-live-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--g300);
+  box-shadow:0 0 0 3px rgba(131,212,62,.2);
+  animation:livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 3px rgba(131,212,62,.2)}50%{box-shadow:0 0 0 5px rgba(131,212,62,.08)}}
+.chip-text{font-size:12px;font-weight:600;color:var(--g200);letter-spacing:.2px}
+.home-title{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1.1;margin-bottom:4px}
+.home-title span{color:var(--g300)}
+.home-meta{font-size:13px;color:var(--t2);font-weight:400}
+.home-meta b{color:var(--t1);font-weight:600}
+
+/* — MAIN TRACKING CARD — */
+.track-card{
+  margin:0 16px 14px;
+  background:var(--s2);
+  border-radius:var(--r24);
+  border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+/* Bus info header inside card */
+.tc-header{
+  padding:18px 20px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.tc-bus-id{
+  display:flex;align-items:center;gap:10px;
+}
+.bus-avatar{
+  width:42px;height:42px;border-radius:var(--r12);
+  background:linear-gradient(135deg,var(--g700),var(--g600));
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  border:1px solid var(--g500);
+}
+.bus-label{font-size:15px;font-weight:600}
+.bus-sub{font-size:12px;color:var(--t2);margin-top:1px;font-family:'DM Mono',monospace}
+.tc-badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;
+  border-radius:var(--rpill);
+  font-size:11px;font-weight:600;
+  letter-spacing:.1px;
+}
+.b-green{background:rgba(131,212,62,.12);color:var(--g200);border:1px solid rgba(131,212,62,.2)}
+.b-amber{background:rgba(232,162,48,.12);color:#f0c060;border:1px solid rgba(232,162,48,.2)}
+.b-red  {background:rgba(224,68,68,.12); color:#f08888;border:1px solid rgba(224,68,68,.2)}
+.b-blue {background:rgba(74,158,232,.12);color:#88c4f4;border:1px solid rgba(74,158,232,.2)}
+.badge-dot{width:5px;height:5px;border-radius:50%}
+.bd-green{background:var(--g300)} .bd-amber{background:var(--amber)} .bd-red{background:var(--red)} .bd-blue{background:var(--blue)}
+
+/* Accessibility icons row */
+.access-row{
+  padding:10px 20px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.access-tag{
+  display:flex;align-items:center;gap:5px;
+  background:var(--s3);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--rpill);
+  padding:5px 10px;
+  font-size:11px;color:var(--t2);font-weight:500;
+}
+.access-tag svg{width:14px;height:14px;fill:none;stroke:var(--g300);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* Progress track */
+.tc-progress{padding:20px 20px 6px}
+.progress-endpoints{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.ep-label{font-size:12px;font-weight:600}
+.ep-label.ep-start{color:var(--t2)}
+.ep-label.ep-end{color:var(--g300)}
+.ep-pct{
+  font-family:'DM Mono',monospace;
+  font-size:13px;font-weight:500;
+  color:var(--g300);
+  background:rgba(131,212,62,.1);
+  padding:3px 9px;border-radius:var(--rpill);
+  border:1px solid rgba(131,212,62,.15);
+}
+
+/* The track bar + bus */
+.track-bar-wrap{position:relative;padding:14px 0 10px;margin-bottom:4px}
+.track-rail{
+  height:5px;
+  background:var(--s5);
+  border-radius:var(--rpill);
+  position:relative;overflow:visible;
+}
+.track-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--g700),var(--g400));
+  border-radius:var(--rpill);
+  transition:width 1.4s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.track-fill::after{
+  content:'';
+  position:absolute;right:0;top:50%;transform:translateY(-50%);
+  width:11px;height:11px;border-radius:50%;
+  background:var(--g300);
+  box-shadow:0 0 0 3px rgba(131,212,62,.25);
+}
+/* Bus icon on track */
+.bus-on-track{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%,-50%);
+  transition:left 1.4s cubic-bezier(.4,0,.2,1);
+  z-index:10;
+  pointer-events:none;
+}
+.bus-pill{
+  background:var(--s2);
+  border:2px solid var(--g400);
+  border-radius:var(--rpill);
+  padding:4px 9px;
+  display:flex;align-items:center;gap:4px;
+  font-size:13px;
+  white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+}
+.bus-pill-text{font-size:10px;font-weight:700;color:var(--g200);font-family:'DM Mono',monospace}
+/* Bus bounce */
+.bus-pill{animation:busFloat 3s ease-in-out infinite}
+@keyframes busFloat{0%,100%{transform:translateY(-3px)}50%{transform:translateY(-8px)}}
+
+/* ── LIVE INFO CARD ── */
+.live-card{
+  margin:0 16px 14px;
+  background:var(--s2);
+  border-radius:var(--r20);
+  border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.lc-row{
+  display:flex;
+  align-items:center;
+  padding:14px 18px;
+  gap:14px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.lc-row:last-child{border-bottom:none}
+.lc-icon{
+  width:36px;height:36px;
+  border-radius:var(--r12);
+  background:var(--s3);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.lc-icon svg{width:17px;height:17px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lc-text{flex:1;min-width:0}
+.lc-label{font-size:11px;color:var(--t3);font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:3px}
+.lc-value{font-size:14px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-value.lv-green{color:var(--g300)}
+.lc-value.lv-amber{color:var(--amber)}
+.lc-value.lv-red  {color:var(--red)}
+.lc-right{font-size:13px;font-weight:700;color:var(--t2);white-space:nowrap;flex-shrink:0}
+.lc-right.lr-green{color:var(--g300)}
+.lc-right.lr-amber{color:var(--amber)}
+.lc-right.lr-red  {color:var(--red)}
+
+/* — ETA BIG BLOCK — */
+.eta-block{
+  margin:0 16px 14px;
+  background:var(--g800);
+  border-radius:var(--r20);
+  border:1px solid var(--g700);
+  padding:20px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  position:relative;overflow:hidden;
+}
+.eta-block::before{
+  content:'';
+  position:absolute;top:-40px;right:-40px;
+  width:150px;height:150px;
+  background:radial-gradient(circle,rgba(95,184,42,.15),transparent 70%);
+  pointer-events:none;
+}
+.eta-left .eta-label{font-size:11px;color:var(--g200);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.eta-num{font-size:52px;font-weight:700;color:#fff;letter-spacing:-2px;line-height:1}
+.eta-num span{font-size:18px;font-weight:500;color:var(--g200);letter-spacing:0;margin-left:3px}
+.eta-sub{font-size:12px;color:var(--g300);margin-top:6px}
+.eta-right{text-align:right}
+.eta-clock{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--g100);letter-spacing:1px}
+.eta-clock-label{font-size:11px;color:var(--g400);margin-top:4px}
+
+/* ══════════════════════════════════════
+   ╔═══════════════╗
+   ║  VIEW: MAP    ║
+   ╚═══════════════╝
+══════════════════════════════════════ */
+.map-view-header{padding:8px 22px 16px;flex-shrink:0}
+.view-title{font-size:22px;font-weight:700;letter-spacing:-.4px}
+.view-sub  {font-size:13px;color:var(--t2);margin-top:3px}
+/* SVG map canvas */
+.map-canvas-wrap{
+  margin:0 16px;
+  background:var(--s2);
+  border-radius:var(--r20);
+  border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;
+  flex-shrink:0;
+}
+#mapSvg{width:100%;display:block}
+.map-legend{
+  margin:12px 16px 0;
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.leg-item{
+  display:flex;align-items:center;gap:6px;
+  background:var(--s2);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--rpill);padding:6px 12px;
+  font-size:12px;color:var(--t2);font-weight:500;
+}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+
+/* ══════════════════════════════════════
+   ╔══════════════════╗
+   ║  VIEW: SEARCH    ║
+   ╚══════════════════╝
+══════════════════════════════════════ */
+.search-header{padding:8px 22px 16px;flex-shrink:0}
+.search-box{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s3);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--r16);
+  padding:12px 16px;
+  margin-top:12px;
+}
+.search-box svg{width:18px;height:18px;fill:none;stroke:var(--t3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+#searchInput{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:15px;color:var(--t1);font-family:'DM Sans',sans-serif;
+}
+#searchInput::placeholder{color:var(--t3)}
+.routes-list{padding:0 16px;flex:1}
+.route-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;
+  background:var(--s2);
+  border-radius:var(--r16);
+  margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.05);
+  cursor:pointer;
+  transition:background .15s;
+}
+.route-item:active{background:var(--s3)}
+.route-num{
+  width:42px;height:42px;border-radius:var(--r12);
+  background:var(--g700);border:1px solid var(--g600);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:var(--g200);
+  font-family:'DM Mono',monospace;flex-shrink:0;
+}
+.route-info{flex:1;min-width:0}
+.ri-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-sub {font-size:12px;color:var(--t2);margin-top:2px}
+.route-fare{font-size:13px;font-weight:700;color:var(--g300);font-family:'DM Mono',monospace}
+.section-head{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin:16px 16px 8px}
+
+/* ══════════════════════════════════════
+   ╔══════════════════╗
+   ║  VIEW: PROFILE   ║
+   ╚══════════════════╝
+══════════════════════════════════════ */
+.profile-header{
+  padding:20px 22px 22px;
+  display:flex;align-items:center;gap:16px;
+  flex-shrink:0;
+}
+.avatar{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g700),var(--g500));
+  border:2px solid var(--g500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:700;
+  color:var(--g100);
+  flex-shrink:0;
+}
+.profile-name{font-size:20px;font-weight:700}
+.profile-plan{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(131,212,62,.12);
+  border:1px solid rgba(131,212,62,.2);
+  border-radius:var(--rpill);padding:3px 8px;
+  font-size:11px;color:var(--g200);font-weight:600;margin-top:4px;
+}
+.stats-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:8px;margin:0 16px 16px;flex-shrink:0;
+}
+.stat-card{
+  background:var(--s2);border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--r16);padding:14px 12px;text-align:center;
+}
+.stat-num{font-size:22px;font-weight:700;color:var(--g300)}
+.stat-lbl{font-size:11px;color:var(--t3);margin-top:3px;font-weight:500}
+.fav-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;
+  background:var(--s2);border-radius:var(--r16);
+  margin:0 16px 8px;border:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
+}
+.fav-icon{
+  width:36px;height:36px;background:var(--g800);border-radius:var(--r12);
+  border:1px solid var(--g700);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.fav-info{flex:1}
+.fi-name{font-size:14px;font-weight:600}
+.fi-sub {font-size:12px;color:var(--t2);margin-top:1px}
+.fav-badge{font-size:11px;font-weight:600;color:var(--g300);background:rgba(131,212,62,.1);padding:3px 8px;border-radius:var(--rpill);border:1px solid rgba(131,212,62,.15)}
+
+/* ══════════════════════════════════════
+   ╔══════════════════╗
+   ║  VIEW: CHAT      ║
+   ╚══════════════════╝
+══════════════════════════════════════ */
+.chat-header{
+  padding:8px 22px 14px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
+}
+.chat-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--g700),var(--g500));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+  position:relative;
+}
+.chat-avatar::after{
+  content:'';position:absolute;bottom:1px;right:1px;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--g300);border:2px solid var(--s1);
+}
+.chat-info{flex:1}
+.chat-name{font-size:15px;font-weight:600}
+.chat-status{font-size:12px;color:var(--g300)}
+.messages-area{
+  flex:1;overflow-y:auto;padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:none;
+}
+.messages-area::-webkit-scrollbar{display:none}
+.msg{max-width:78%;display:flex;flex-direction:column;gap:3px}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.bot {align-self:flex-start;align-items:flex-start}
+.msg-bubble{
+  padding:10px 14px;
+  border-radius:18px;
+  font-size:14px;line-height:1.4;
+}
+.msg.user .msg-bubble{
+  background:var(--g600);color:#fff;
+  border-bottom-right-radius:5px;
+}
+.msg.bot .msg-bubble{
+  background:var(--s3);color:var(--t1);
+  border:1px solid rgba(255,255,255,.06);
+  border-bottom-left-radius:5px;
+}
+.msg-time{font-size:10px;color:var(--t3);margin:0 4px}
+
+/* Quick replies */
+.quick-replies{
+  padding:8px 16px;
+  display:flex;gap:7px;overflow-x:auto;
+  scrollbar-width:none;flex-shrink:0;
+}
+.quick-replies::-webkit-scrollbar{display:none}
+.qr-btn{
+  background:var(--s3);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--rpill);padding:8px 14px;
+  font-size:12px;font-weight:500;color:var(--t2);
+  white-space:nowrap;cursor:pointer;transition:all .15s;
+  font-family:'DM Sans',sans-serif;
+}
+.qr-btn:hover{background:var(--s4);color:var(--t1)}
+
+/* Chat input */
+.chat-input-row{
+  padding:10px 16px 12px;
+  display:flex;gap:10px;align-items:center;
+  border-top:1px solid rgba(255,255,255,.05);
+  flex-shrink:0;
+}
+#chatInput{
+  flex:1;background:var(--s3);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--rpill);padding:11px 16px;
+  font-size:14px;color:var(--t1);outline:none;
+  font-family:'DM Sans',sans-serif;
+}
+#chatInput::placeholder{color:var(--t3)}
+#chatInput:focus{border-color:rgba(131,212,62,.3)}
+.send-btn{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--g600);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .15s;
+}
+.send-btn:hover{background:var(--g500)}
+.send-btn svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.bottom-nav{
+  height:78px;
+  background:var(--s1);
+  border-top:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-around;
+  padding:0 10px 10px;
+  flex-shrink:0;
+  backdrop-filter:blur(20px);
+}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;padding:6px 10px;border-radius:var(--r12);
+  transition:background .15s;flex:1;
+  font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.2px;
+}
+.nav-btn svg{width:22px;height:22px;fill:none;stroke:var(--t3);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:1px}
+.nav-btn.active{color:var(--g300)}
+.nav-btn.active svg{stroke:var(--g300)}
+.nav-btn:active{background:var(--s3)}
+
+/* NAV INDICATOR */
+.nav-indicator{
+  position:absolute;
+  bottom:78px;left:0;
+  width:calc(100%/4);
+  height:2px;background:var(--g400);
+  border-radius:var(--rpill);
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+}
+
+/* TYPING DOTS */
+.typing-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--t2);animation:typingDot .8s ease-in-out infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes typingDot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* FADE IN */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.shell{animation:fadeInUp .4s ease}
+</style>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <!-- ═══ STATUS BAR ═══ -->
+  <div class="statusbar">
+    <span class="sb-time" id="sbTime">9:41</span>
+    <div class="sb-icons">
+      <!-- signal -->
+      <svg viewBox="0 0 16 12"><rect x="0" y="5" width="2.5" height="7" rx="1" fill="#fff" opacity=".35"/><rect x="4" y="3.5" width="2.5" height="8.5" rx="1" fill="#fff" opacity=".6"/><rect x="8" y="1.5" width="2.5" height="10.5" rx="1" fill="#fff" opacity=".85"/><rect x="12" y="0" width="2.5" height="12" rx="1" fill="#fff"/></svg>
+      <!-- wifi -->
+      <svg viewBox="0 0 18 13"><path d="M1 4.5C4.5 1.2 9 0 9 0s4.5 1.2 8 4.5" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M3.5 7.5C5.5 5.5 9 4.5 9 4.5s3.5 1 5.5 3" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M6 10.5c.8-.8 3-1 3-1s2.2.2 3 1" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="9" cy="13" r="1.2" fill="#fff"/></svg>
+      <!-- battery -->
+      <svg viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="18" height="11" rx="2.5" stroke="#fff" stroke-width="1" fill="none"/><path d="M19.5 4v4a2 2 0 000-4z" fill="#fff" opacity=".4"/><rect x="2" y="2" width="13" height="8" rx="1.5" fill="#5fb82a"/></svg>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       VIEW: HOME / SEGUIMIENTO
+  ═══════════════════════════════════ -->
+  <div class="view active" id="view-home">
+
+    <div class="home-header">
+      <div class="route-chip">
+        <div class="chip-live-dot"></div>
+        <span class="chip-text">EN VIVO · LÍNEA 400 · ₡575</span>
+      </div>
+      <div class="home-title">San José <span>→ Heredia</span></div>
+      <div class="home-meta">Rápidas Heredianas · <b id="hdrParadas">0/39</b> paradas · <b id="hdrDuracion">34 min</b></div>
+    </div>
+
+    <!-- TRACKING CARD -->
+    <div class="track-card">
+
+      <!-- Bus header -->
+      <div class="tc-header">
+        <div class="tc-bus-id">
+          <div class="bus-avatar">🚌</div>
+          <div>
+            <div class="bus-label">Unidad 07</div>
+            <div class="bus-sub">SJB-4271</div>
+          </div>
+        </div>
+        <div class="tc-badges">
+          <div class="badge b-green" id="srvBadge">
+            <div class="badge-dot bd-green" id="srvDot"></div>
+            <span id="srvTxt">A tiempo</span>
+          </div>
+          <div class="badge b-green" id="trfBadge">
+            <div class="badge-dot bd-green" id="trfDot"></div>
+            <span id="trfTxt">Normal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accessibility -->
+      <div class="access-row">
+        <div class="access-tag">
+          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15V9M10 9l2.5 3 2.5-3M17 9v6"/></svg>
+          Pago con tarjeta
+        </div>
+        <div class="access-tag">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="M10 22v-6M14 22v-6M5 12l3-4h8l3 4M8 16H5l-1 4M16 16h3l1 4"/></svg>
+          Rampa ♿
+        </div>
+        <div class="access-tag">
+          <svg viewBox="0 0 24 24"><path d="M3 12h1M20 12h1M12 3v1M12 20v1M5.6 5.6l.7.7M17.7 17.7l.7.7M5.6 18.4l.7-.7M17.7 6.3l.7-.7"/><circle cx="12" cy="12" r="4"/></svg>
+          A/C
+        </div>
+      </div>
+
+      <!-- Progress track -->
+      <div class="tc-progress">
+        <div class="progress-endpoints">
+          <span class="ep-label ep-start">Terminal SJ</span>
+          <span class="ep-pct" id="pctLabel">0%</span>
+          <span class="ep-label ep-end">Terminal Heredia</span>
+        </div>
+        <div class="track-bar-wrap">
+          <div class="track-rail">
+            <div class="track-fill" id="trackFill" style="width:0%"></div>
+          </div>
+          <!-- Bus moves over the bar -->
+          <div class="bus-on-track" id="busOnTrack" style="left:0%">
+            <div class="bus-pill">
+              <span>🚌</span>
+              <span class="bus-pill-text" id="busKm">0.0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /track-card -->
+
+    <!-- ETA HERO -->
+    <div class="eta-block">
+      <div class="eta-left">
+        <div class="eta-label">Llegada a Heredia en</div>
+        <div class="eta-num"><span id="etaMin">34</span><span>min</span></div>
+        <div class="eta-sub" id="etaSub">Próxima: Terminal SJ</div>
+      </div>
+      <div class="eta-right">
+        <div class="eta-clock" id="etaClock">—:——</div>
+        <div class="eta-clock-label">hora estimada</div>
+      </div>
+    </div>
+
+    <!-- LIVE INFO CARD -->
+    <div class="live-card">
+      <!-- Ubicación actual -->
+      <div class="lc-row">
+        <div class="lc-icon"><svg viewBox="0 0 24 24" style="stroke:var(--g300)"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="lc-text">
+          <div class="lc-label">Ubicación actual</div>
+          <div class="lc-value" id="lcActual">Terminal Rápidos Heredianaos</div>
+        </div>
+      </div>
+      <!-- Próxima parada -->
+      <div class="lc-row">
+        <div class="lc-icon"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><polyline points="9 18 15 12 9 6"/></svg></div>
+        <div class="lc-text">
+          <div class="lc-label">Próxima parada</div>
+          <div class="lc-value" id="lcProxima">—</div>
+        </div>
+        <div class="lc-right lr-green" id="lcProximaMin">—</div>
+      </div>
+      <!-- Distancia restante -->
+      <div class="lc-row">
+        <div class="lc-icon"><svg viewBox="0 0 24 24" style="stroke:var(--amber)"><path d="M3 12h18M3 6h18M3 18h12"/></svg></div>
+        <div class="lc-text">
+          <div class="lc-label">Distancia restante</div>
+          <div class="lc-value" id="lcDist">15.30 km</div>
+        </div>
+        <div class="lc-right" id="lcVel" style="color:var(--t3)">— km/h</div>
+      </div>
+      <!-- Tráfico -->
+      <div class="lc-row">
+        <div class="lc-icon"><svg viewBox="0 0 24 24" style="stroke:var(--g300)"><rect x="4" y="2" width="16" height="20" rx="3"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="13" r="2"/><circle cx="12" cy="19" r="2"/></svg></div>
+        <div class="lc-text">
+          <div class="lc-label">Estado del tráfico</div>
+          <div class="lc-value lv-green" id="lcTrafico">Normal</div>
+        </div>
+      </div>
+    </div><!-- /live-card -->
+
+  </div><!-- /view-home -->
+
+  <!-- ═══════════════════════════════════
+       VIEW: MAP
+  ═══════════════════════════════════ -->
+  <div class="view" id="view-map">
+    <div class="map-view-header">
+      <div class="view-title">Mapa de ruta</div>
+      <div class="view-sub">San José → Heredia por Santo Domingo</div>
+    </div>
+
+    <div class="map-canvas-wrap">
+      <svg id="mapSvg" viewBox="0 0 358 320" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background -->
+        <rect width="358" height="320" fill="#181818"/>
+        <!-- Grid lines -->
+        <line x1="0" y1="80"  x2="358" y2="80"  stroke="#222" stroke-width="1"/>
+        <line x1="0" y1="160" x2="358" y2="160" stroke="#222" stroke-width="1"/>
+        <line x1="0" y1="240" x2="358" y2="240" stroke="#222" stroke-width="1"/>
+        <line x1="89"  y1="0" x2="89"  y2="320" stroke="#222" stroke-width="1"/>
+        <line x1="179" y1="0" x2="179" y2="320" stroke="#222" stroke-width="1"/>
+        <line x1="269" y1="0" x2="269" y2="320" stroke="#222" stroke-width="1"/>
+
+        <!-- Route path — stylized S-curve SJ → Heredia -->
+        <!-- Road shadow -->
+        <path d="M52 290 L90 260 L110 230 C120 210 130 195 145 185
+                 L170 170 L195 155 C215 140 230 125 240 108
+                 L255 90 C265 72 275 58 295 45 L320 32"
+              fill="none" stroke="#333" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Main road -->
+        <path id="mapRoutePath"
+              d="M52 290 L90 260 L110 230 C120 210 130 195 145 185
+                 L170 170 L195 155 C215 140 230 125 240 108
+                 L255 90 C265 72 275 58 295 45 L320 32"
+              fill="none" stroke="#2a5c14" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Animated bus progress overlay -->
+        <path id="mapRouteProgress"
+              d="M52 290 L90 260 L110 230 C120 210 130 195 145 185
+                 L170 170 L195 155 C215 140 230 125 240 108
+                 L255 90 C265 72 275 58 295 45 L320 32"
+              fill="none" stroke="#5fb82a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"
+              stroke-dasharray="500" stroke-dashoffset="500"
+              id="mapProgress"/>
+
+        <!-- Key stops only (simplified) -->
+        <!-- SJ -->
+        <circle cx="52" cy="290" r="8" fill="#1a4207" stroke="#5fb82a" stroke-width="2"/>
+        <text x="64" y="294" fill="#a8a8a8" font-size="10" font-family="DM Sans,sans-serif">Terminal SJ</text>
+        <!-- Tibás area -->
+        <circle cx="130" cy="208" r="5" fill="#222" stroke="#444" stroke-width="1.5"/>
+        <text x="140" y="212" fill="#666" font-size="9" font-family="DM Sans,sans-serif">Tibás</text>
+        <!-- Santo Domingo -->
+        <circle cx="192" cy="157" r="5" fill="#222" stroke="#444" stroke-width="1.5"/>
+        <text x="200" y="161" fill="#666" font-size="9" font-family="DM Sans,sans-serif">Sto. Domingo</text>
+        <!-- San Pablo -->
+        <circle cx="244" cy="107" r="5" fill="#222" stroke="#444" stroke-width="1.5"/>
+        <text x="252" y="111" fill="#666" font-size="9" font-family="DM Sans,sans-serif">San Pablo</text>
+        <!-- Heredia -->
+        <circle cx="320" cy="32" r="8" fill="#1a4207" stroke="#3f832c" stroke-width="2"/>
+        <text x="296" y="24" fill="#83d43e" font-size="10" font-family="DM Sans,sans-serif" font-weight="600">Terminal Heredia</text>
+
+        <!-- Bus on map -->
+        <g id="mapBusG" transform="translate(52,290)">
+          <circle r="11" fill="#27601c" stroke="#83d43e" stroke-width="2"/>
+          <text text-anchor="middle" dominant-baseline="central" font-size="11">🚌</text>
+        </g>
+
+        <!-- Compass -->
+        <g transform="translate(328,296)">
+          <circle r="14" fill="#222" stroke="#333" stroke-width="1"/>
+          <text text-anchor="middle" y="-5" fill="#888" font-size="8" font-family="DM Sans,sans-serif">N</text>
+          <line x1="0" y1="-9" x2="0" y2="9" stroke="#555" stroke-width="1"/>
+          <line x1="-9" y1="0" x2="9" y2="0" stroke="#555" stroke-width="1"/>
+          <polygon points="0,-8 -3,0 0,-3 3,0" fill="#83d43e"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="map-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--g400)"></div>Ruta activa</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--g300);box-shadow:0 0 0 3px rgba(131,212,62,.2)"></div>Bus en vivo</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#444"></div>Parada</div>
+    </div>
+
+    <div style="margin:14px 16px 0">
+      <div style="background:var(--s2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r16);padding:14px 16px">
+        <div style="font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:10px">Resumen de ruta</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:3px">Distancia</div><div style="font-size:15px;font-weight:700;color:var(--g300)">15.3 km</div></div>
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:3px">Duración</div><div style="font-size:15px;font-weight:700;color:var(--t1)">~34 min</div></div>
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:3px">Paradas</div><div style="font-size:15px;font-weight:700;color:var(--t1)">40</div></div>
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:3px">Tarifa</div><div style="font-size:15px;font-weight:700;color:var(--g300)">₡575</div></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /view-map -->
+
+  <!-- ═══════════════════════════════════
+       VIEW: SEARCH
+  ═══════════════════════════════════ -->
+  <div class="view" id="view-search">
+    <div class="search-header">
+      <div class="view-title">Buscar rutas</div>
+      <div class="view-sub">Rápidas Heredianas · San José</div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Destino, parada o línea…">
+      </div>
+    </div>
+
+    <div class="section-head">Rutas disponibles</div>
+    <div class="routes-list" id="routesList">
+      <!-- generated by JS -->
+    </div>
+  </div><!-- /view-search -->
+
+  <!-- ═══════════════════════════════════
+       VIEW: PROFILE
+  ═══════════════════════════════════ -->
+  <div class="view" id="view-profile">
+    <div class="profile-header">
+      <div class="avatar">CR</div>
+      <div>
+        <div class="profile-name">Carlos Rodríguez</div>
+        <div class="profile-plan">
+          <span>●</span> RUTHA Pro
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num">127</div><div class="stat-lbl">Viajes</div></div>
+      <div class="stat-card"><div class="stat-num">34h</div><div class="stat-lbl">En bus</div></div>
+      <div class="stat-card"><div class="stat-num">₡73k</div><div class="stat-lbl">Gastado</div></div>
+    </div>
+
+    <div class="section-head">Rutas favoritas</div>
+    <div class="fav-item">
+      <div class="fav-icon">🚌</div>
+      <div class="fav-info">
+        <div class="fi-name">San José → Heredia</div>
+        <div class="fi-sub">Línea 400 · por Santo Domingo</div>
+      </div>
+      <div class="fav-badge">Favorita</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-icon">🚌</div>
+      <div class="fav-info">
+        <div class="fi-name">Heredia → San José</div>
+        <div class="fi-sub">Línea 400 · regreso</div>
+      </div>
+      <div class="fav-badge">Favorita</div>
+    </div>
+    <div class="fav-item">
+      <div class="fav-icon">🚌</div>
+      <div class="fav-info">
+        <div class="fi-name">San José → UNA</div>
+        <div class="fi-sub">Línea 400A · directo</div>
+      </div>
+      <div class="fav-badge">Favorita</div>
+    </div>
+
+    <div class="section-head">Métodos de pago</div>
+    <div class="fav-item">
+      <div class="fav-icon">💳</div>
+      <div class="fav-info">
+        <div class="fi-name">Tarjeta BCR •••• 4521</div>
+        <div class="fi-sub">Activa · Saldo ₡8,450</div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div><!-- /view-profile -->
+
+  <!-- ═══════════════════════════════════
+       VIEW: CHAT
+  ═══════════════════════════════════ -->
+  <div class="view" id="view-chat">
+    <div class="chat-header">
+      <div class="chat-avatar">🤖</div>
+      <div class="chat-info">
+        <div class="chat-name">Asistente RUTHA</div>
+        <div class="chat-status">En línea ahora</div>
+      </div>
+      <div class="badge b-green" style="font-size:11px;padding:4px 10px">
+        <div class="badge-dot bd-green"></div>
+        <span>Activo</span>
+      </div>
+    </div>
+
+    <div class="messages-area" id="messagesArea">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="quick-replies" id="quickReplies">
+      <button class="qr-btn" onclick="sendQuick('¿Dónde está el bus?')">📍 ¿Dónde está el bus?</button>
+      <button class="qr-btn" onclick="sendQuick('¿Cuánto falta para llegar?')">⏱ ¿Cuánto falta?</button>
+      <button class="qr-btn" onclick="sendQuick('¿Cuál es la tarifa?')">💰 Tarifa</button>
+      <button class="qr-btn" onclick="sendQuick('¿Hay rampa para silla de ruedas?')">♿ Accesibilidad</button>
+      <button class="qr-btn" onclick="sendQuick('¿Cuál es el horario?')">🕐 Horario</button>
+    </div>
+
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Escribe un mensaje…">
+      <button class="send-btn" onclick="sendChat()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div><!-- /view-chat -->
+
+  <!-- NAV INDICATOR -->
+  <div class="nav-indicator" id="navIndicator"></div>
+
+  <!-- ═══ BOTTOM NAV ═══ -->
+  <div class="bottom-nav">
+    <div class="nav-btn active" id="nav-home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      En vivo
+    </div>
+    <div class="nav-btn" id="nav-map" onclick="switchTab('map')">
+      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Mapa
+    </div>
+    <div class="nav-btn" id="nav-search" onclick="switchTab('search')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Buscar
+    </div>
+    <div class="nav-btn" id="nav-profile" onclick="switchTab('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </div>
+    <div class="nav-btn" id="nav-chat" onclick="switchTab('chat')">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+/* ════════════════════════════════════════════
+   PARADAS REALES (Moovit) · 40 paradas · 15.3 km
+   ════════════════════════════════════════════ */
+const PARADAS = [
+  {n:"Terminal Rápidos Heredianaos, San José",    c:"Terminal SJ",            d:0.00},
+  {n:"Intersección Barrio Tournon, San José",      c:"B° Tournon",             d:0.55},
+  {n:"Multiservicios Edos, Tournón",              c:"Multiservicios Edos",     d:0.95},
+  {n:"Guitarras Arristedes Guzmán, Cinco Esq.",   c:"Cinco Esquinas",          d:1.60},
+  {n:"Plantel Caribeños, Cinco Esquinas Tibás",   c:"Plantel Caribeños",       d:2.10},
+  {n:"Pops Santa Mónica, Tibás",                  c:"Pops Santa Mónica",       d:2.55},
+  {n:"Grupo Sonmerus, San Juan De Tibás",         c:"Sonmerus",                d:3.00},
+  {n:"Parqueo Público Sabucedo, San Juan Tibás",  c:"Parqueo Sabucedo",        d:3.45},
+  {n:"Rest. Gran Oriente, San Juan Tibás",        c:"Rest. Gran Oriente",      d:3.80},
+  {n:"Agencia INS San Juan, Tibás",               c:"Agencia INS",             d:4.15},
+  {n:"Super La Valvanera, San Juan De Tibás",     c:"Super Valvanera",         d:4.55},
+  {n:"Mueblería La Kasa, San Juan De Tibás",      c:"Mueblería La Kasa",       d:4.90},
+  {n:"Plantel Del MOPT De Santo Domingo",         c:"Plantel MOPT",            d:5.50},
+  {n:"Burger King Plaza Santo Domingo",           c:"Burger King",             d:5.95},
+  {n:"Entrada Barrio Santa Rosa, Sto. Domingo",   c:"B° Santa Rosa",           d:6.30},
+  {n:"McDonald's De Santo Domingo",               c:"McDonald's",              d:6.65},
+  {n:"Autos El Poblado, Santo Domingo",           c:"Autos El Poblado",        d:7.00},
+  {n:"Iglesia Católica El Rosario, Sto. Domingo", c:"Iglesia El Rosario",      d:7.35},
+  {n:"EBAIS De Santo Domingo",                    c:"EBAIS Sto. Domingo",      d:7.65},
+  {n:"Sognos Café, Santo Domingo",                c:"Sognos Café",             d:7.95},
+  {n:"Autos Santo Domingo",                       c:"Autos Sto. Domingo",      d:8.25},
+  {n:"Panadería Chantilly, San Pablo",            c:"Panad. Chantilly",        d:8.70},
+  {n:"Lavacar Olas, San Pablo",                   c:"Lavacar Olas",            d:9.05},
+  {n:"Taller SYS, San Pablo",                     c:"Taller SYS",              d:9.35},
+  {n:"Cementerio Municipal De San Pablo",          c:"Cementerio San Pablo",    d:9.70},
+  {n:"Entrada Colegio Europeo, San Pablo",        c:"Col. Europeo",            d:10.05},
+  {n:"Iglesia Casa De Oración San Pablo",         c:"Igles. Casa Oración",     d:10.40},
+  {n:"Plaza De Deportes La Puebla, Heredia",      c:"Plaza Deportes",          d:10.90},
+  {n:"Cond. Eco Heredia Urbano, La Puebla",       c:"Eco Heredia Urbano",      d:11.35},
+  {n:"Universidad Nacional De Costa Rica",        c:"UNA",                     d:11.80},
+  {n:"Gimnasio Liceo De Heredia",                 c:"Liceo De Heredia",        d:12.20},
+  {n:"Hotel D Cristina, Heredia",                 c:"Hotel D Cristina",        d:12.55},
+  {n:"Panadería Leandro, Fátima De Heredia",      c:"Panad. Leandro",          d:12.90},
+  {n:"CAIS Dr. Francisco Bolaños, Fátima",        c:"CAIS Dr. Bolaños",        d:13.25},
+  {n:"Clínica De Heredia, Fátima",                c:"Clínica De Heredia",      d:13.55},
+  {n:"Cercanías Estadio Eladio Rosabal",          c:"Estadio (cercanías)",     d:13.85},
+  {n:"Estadio Eladio Rosabal Cordero, Heredia",   c:"Estadio Rosabal",         d:14.15},
+  {n:"Servicentro Casaque, Heredia",              c:"Servicentro Casaque",     d:14.45},
+  {n:"Antiguo Hospital San Vicente De Paúl",      c:"Ant. Hospital",           d:14.80},
+  {n:"Terminal Heredia, Escuela Braulio Morales", c:"Terminal Heredia",        d:15.30},
+];
+const DIST_TOTAL = 15.30;
+const TOTAL_MIN  = 34;
+
+/* ════ STATE ════ */
+let stopIdx  = 0, subPct = 0, vel = 27, srvIdx = 0, trfIdx = 0;
+const tSalida = new Date();
+
+/* ════ HELPERS ════ */
+function pad(n){return String(n).padStart(2,'0')}
+function fmtH(d){return pad(d.getHours())+':'+pad(d.getMinutes())}
+
+/* ════ CLOCK ════ */
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('sbTime').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+},1000);
+(()=>{const n=new Date();document.getElementById('sbTime').textContent=pad(n.getHours())+':'+pad(n.getMinutes())})();
+
+/* ════ STATUS DATA ════ */
+const SRV=[
+  {txt:'A tiempo',    badgeCls:'b-green',dotCls:'bd-green'},
+  {txt:'Retrasado',   badgeCls:'b-red',  dotCls:'bd-red'},
+  {txt:'Próximo',     badgeCls:'b-amber',dotCls:'bd-amber'},
+];
+const TRF=[
+  {txt:'Normal',      valCls:'lv-green'},
+  {txt:'Moderado',    valCls:'lv-amber'},
+  {txt:'Congestionado',valCls:'lv-red'},
+];
+const TRF_BADGE=[
+  {badgeCls:'b-green',dotCls:'bd-green'},
+  {badgeCls:'b-amber',dotCls:'bd-amber'},
+  {badgeCls:'b-red',  dotCls:'bd-red'},
+];
+
+/* ════ MAP PATH ANIMATION ════
+   Total path length ≈ 450px (estimated for dashoffset animation)
+*/
+const MAP_PATH_LEN = 450;
+
+/* ════ MAIN RENDER ════ */
+function render(){
+  const N=PARADAS.length, isLast=stopIdx>=N-1;
+  const cur=PARADAS[stopIdx], nxt=isLast?null:PARADAS[stopIdx+1];
+
+  const distRec = isLast ? DIST_TOTAL : cur.d+(nxt.d-cur.d)*subPct;
+  const distRest= +(DIST_TOTAL-distRec).toFixed(2);
+  const pct     = distRec/DIST_TOTAL;
+  const minDone = pct*TOTAL_MIN;
+  const extraMin= srvIdx===1?4:0;
+  const etaMin  = Math.max(0, Math.round(TOTAL_MIN-minDone+extraMin));
+
+  /* — progress bar & bus — */
+  const pctPx = (pct*100).toFixed(1)+'%';
+  document.getElementById('trackFill').style.width = pctPx;
+  /* keep bus inside bar edges (5% padding each side) */
+  const busLeft = 5 + pct*90;
+  document.getElementById('busOnTrack').style.left = busLeft.toFixed(1)+'%';
+  document.getElementById('busKm').textContent     = distRec.toFixed(1)+'km';
+  document.getElementById('pctLabel').textContent  = Math.round(pct*100)+'%';
+
+  /* — header — */
+  document.getElementById('hdrParadas').textContent = stopIdx+'/'+(N-1);
+  document.getElementById('hdrDuracion').textContent= etaMin+' min';
+
+  /* — ETA block — */
+  document.getElementById('etaMin').textContent  = isLast?'0':etaMin;
+  const llegada = new Date(Date.now()+etaMin*60000);
+  document.getElementById('etaClock').textContent = isLast?'¡Llegó!':fmtH(llegada);
+  document.getElementById('etaSub').textContent   = isLast?'¡Llegamos a Heredia!':'Próxima: '+(nxt?nxt.c:'—');
+
+  /* — live card — */
+  document.getElementById('lcActual').textContent   = cur.n;
+  document.getElementById('lcProxima').textContent  = isLast?'—':(nxt?nxt.n:'—');
+  document.getElementById('lcProximaMin').textContent= isLast?'':'~'+Math.max(1,Math.round((nxt?nxt.d-distRec:0)/DIST_TOTAL*TOTAL_MIN))+' min';
+  document.getElementById('lcProximaMin').className = 'lc-right lr-green';
+  document.getElementById('lcDist').textContent     = distRest+' km';
+  document.getElementById('lcVel').textContent      = vel+' km/h';
+
+  /* traffic row */
+  const trfEl=document.getElementById('lcTrafico');
+  trfEl.textContent=TRF[trfIdx].txt;
+  trfEl.className='lc-value '+TRF[trfIdx].valCls;
+
+  /* — service badge — */
+  const sb=document.getElementById('srvBadge');
+  sb.className='badge '+SRV[srvIdx].badgeCls;
+  document.getElementById('srvDot').className='badge-dot '+SRV[srvIdx].dotCls;
+  document.getElementById('srvTxt').textContent=SRV[srvIdx].txt;
+
+  /* — traffic badge — */
+  const tb=document.getElementById('trfBadge');
+  tb.className='badge '+TRF_BADGE[trfIdx].badgeCls;
+  document.getElementById('trfDot').className='badge-dot '+TRF_BADGE[trfIdx].dotCls;
+  document.getElementById('trfTxt').textContent=TRF[trfIdx].txt;
+
+  /* — map bus position along path — */
+  const mapOff = MAP_PATH_LEN - pct*MAP_PATH_LEN;
+  const mp=document.getElementById('mapProgress');
+  if(mp){mp.setAttribute('stroke-dashoffset', mapOff.toFixed(1))}
+  /* Move bus dot on map */
+  // Interpolate along the stylized path points
+  const mapBus=document.getElementById('mapBusG');
+  if(mapBus){
+    // Key points on path: SJ(52,290) Tibas(130,208) StoDom(192,157) SanPablo(244,107) Heredia(320,32)
+    const pts=[{x:52,y:290},{x:130,y:208},{x:192,y:157},{x:244,y:107},{x:320,y:32}];
+    const distKeys=[0,2.55,6.65,9.35,15.30];
+    let bx=52,by=290;
+    for(let i=0;i<distKeys.length-1;i++){
+      if(distRec>=distKeys[i]&&distRec<=distKeys[i+1]){
+        const t=(distRec-distKeys[i])/(distKeys[i+1]-distKeys[i]);
+        bx=pts[i].x+(pts[i+1].x-pts[i].x)*t;
+        by=pts[i].y+(pts[i+1].y-pts[i].y)*t;
+        break;
+      }
+    }
+    if(distRec>15.29){bx=320;by=32}
+    mapBus.setAttribute('transform',`translate(${bx.toFixed(1)},${by.toFixed(1)})`);
+  }
+}
+
+/* ════ ADVANCE ════ */
+function avanzar(){
+  const N=PARADAS.length;
+  if(stopIdx>=N-1){
+    stopIdx=0;subPct=0;
+    srvIdx=Math.floor(Math.random()*3);
+    trfIdx=Math.floor(Math.random()*3);
+    vel=22+Math.floor(Math.random()*18);
+    render();return;
+  }
+  subPct+=0.09+Math.random()*0.07;
+  if(subPct>=1){
+    subPct=0;stopIdx++;
+    if(Math.random()>.55)srvIdx=Math.floor(Math.random()*3);
+    if(Math.random()>.45)trfIdx=Math.floor(Math.random()*3);
+    vel=22+Math.floor(Math.random()*18);
+  }
+  render();
+}
+render();
+setInterval(avanzar,3000);
+
+/* ════ TAB SWITCHING ════ */
+const TABS=['home','map','search','profile','chat'];
+function switchTab(name){
+  TABS.forEach(t=>{
+    document.getElementById('view-'+t).classList.remove('active');
+    document.getElementById('nav-'+t).classList.remove('active');
+  });
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+
+  const idx=TABS.indexOf(name);
+  const navW=100/5;
+  document.getElementById('navIndicator').style.transform=`translateX(${idx*390/5}px) scaleX(0.6)`;
+}
+
+/* ════ SEARCH ROUTES ════ */
+const ALL_ROUTES=[
+  {num:'400', name:'San José → Heredia',       sub:'Por Santo Domingo',         fare:'₡575'},
+  {num:'400A',name:'San José → UNA',            sub:'Directo Heredia',           fare:'₡575'},
+  {num:'438', name:'Heredia → Santo Domingo',   sub:'Y Ramales',                 fare:'₡450'},
+  {num:'400B',name:'San José → Barreal',        sub:'Heredia Norte',             fare:'₡620'},
+  {num:'300', name:'Heredia → San José',        sub:'Por La Uruca',              fare:'₡575'},
+  {num:'412', name:'Heredia → Tibás',           sub:'Servicio local',            fare:'₡350'},
+  {num:'445', name:'San Pablo → Heredia C.',    sub:'Centro a Centro',           fare:'₡300'},
+  {num:'401', name:'San José → Mercedes',       sub:'Norte de Heredia',          fare:'₡650'},
+];
+function buildRoutes(filter=''){
+  const list=document.getElementById('routesList');
+  list.innerHTML='';
+  const filt=ALL_ROUTES.filter(r=>
+    !filter||r.name.toLowerCase().includes(filter.toLowerCase())||
+    r.num.includes(filter)||r.sub.toLowerCase().includes(filter.toLowerCase())
+  );
+  filt.forEach(r=>{
+    const div=document.createElement('div');
+    div.className='route-item';
+    div.innerHTML=`<div class="route-num">${r.num}</div>
+      <div class="route-info"><div class="ri-name">${r.name}</div><div class="ri-sub">${r.sub}</div></div>
+      <div class="route-fare">${r.fare}</div>`;
+    list.appendChild(div);
+  });
+}
+buildRoutes();
+document.getElementById('searchInput').addEventListener('input',e=>buildRoutes(e.target.value));
+
+/* ════ CHAT ════ */
+const CHAT_ANSWERS={
+  'dónde está el bus': ()=>`El bus está actualmente en: <b>${PARADAS[stopIdx].n}</b>. Avanza hacia ${stopIdx<PARADAS.length-1?PARADAS[stopIdx+1].n:'Heredia'}.`,
+  'cuánto falta': ()=>{
+    const pct=( (PARADAS[stopIdx].d+(stopIdx<PARADAS.length-1?(PARADAS[stopIdx+1].d-PARADAS[stopIdx].d)*subPct:0))/DIST_TOTAL );
+    const eta=Math.max(0,Math.round(TOTAL_MIN-pct*TOTAL_MIN));
+    return `Faltan aproximadamente <b>${eta} minutos</b> para llegar a Terminal Heredia.`;
+  },
+  'tarifa': ()=>'La tarifa actual es de <b>₡575</b>. Se puede pagar en efectivo o con tarjeta bancaria. 💳',
+  'accesibilidad': ()=>'Esta unidad <b>cuenta con rampa ♿</b> para personas con discapacidad y espacio para silla de ruedas. El acceso se realiza por la puerta delantera.',
+  'horario': ()=>'El servicio opera <b>24 horas al día</b>, los 7 días de la semana. Las frecuencias en hora pico son cada 5-10 min. En horas nocturnas, cada 20-30 min.',
+};
+const GENERIC=['¡Claro! ¿En qué más puedo ayudarte?','Entendido. Para más información visita la terminal.','Con gusto te ayudo. ¿Tienes alguna otra consulta?'];
+
+function addMsg(text,role,time){
+  const area=document.getElementById('messagesArea');
+  const d=document.createElement('div');
+  d.className='msg '+role;
+  const t=time||pad(new Date().getHours())+':'+pad(new Date().getMinutes());
+  d.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${t}</div>`;
+  area.appendChild(d);
+  setTimeout(()=>area.scrollTop=area.scrollHeight,50);
+}
+
+function botReply(userTxt){
+  /* typing indicator */
+  const area=document.getElementById('messagesArea');
+  const typing=document.createElement('div');
+  typing.className='msg bot';
+  typing.id='typing';
+  typing.innerHTML=`<div class="msg-bubble" style="padding:12px 16px"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  area.appendChild(typing);
+  area.scrollTop=area.scrollHeight;
+
+  setTimeout(()=>{
+    typing.remove();
+    const key=Object.keys(CHAT_ANSWERS).find(k=>userTxt.toLowerCase().includes(k));
+    const reply=key?CHAT_ANSWERS[key]():GENERIC[Math.floor(Math.random()*GENERIC.length)];
+    addMsg(reply,'bot');
+  }, 1000+Math.random()*600);
+}
+
+function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  addMsg(txt,'user');
+  inp.value='';
+  botReply(txt);
+}
+function sendQuick(txt){addMsg(txt,'user');botReply(txt)}
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+
+/* Initial chat messages */
+addMsg('¡Hola! Soy el asistente de <b>RUTHA</b>. Puedo ayudarte con información sobre rutas, horarios y el seguimiento en tiempo real. 🚌','bot','09:41');
+
+/* ════ NAV INDICATOR INIT ════ */
+document.getElementById('navIndicator').style.transform='translateX(0px) scaleX(0.6)';
+</script>
+</body>
+</html>
